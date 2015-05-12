@@ -2,6 +2,7 @@ class UsersController < ApplicationController
   before_action :signed_in_user,  only: [:index, :edit, :update, :destroy]
   before_action :correct_user,    only: [:edit, :update]
   before_action :admin_user,      only: :destroy
+  before_action :already_signed,  only: [:new, :create]
 
   def index
     @users = User.paginate(page: params[:page])
@@ -66,7 +67,15 @@ class UsersController < ApplicationController
     end
     
     def admin_user
-      redirect_to(root_url) unless current_user.admin?
+      if !current_user.admin? || params[:id] == current_user.id.to_s
+        redirect_to(root_url)
+      end
+    end
+    
+    def already_signed
+      if signed_in?
+        redirect_to(root_url, notice: "You are already signed in")
+      end
     end
 
 end
